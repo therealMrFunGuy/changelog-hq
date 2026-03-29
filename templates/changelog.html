@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ theme }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Changelog - {{ project.name }}</title>
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8f9fb;
+      --bg-card: #ffffff;
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --accent: #6366f1;
+      --accent-light: #eef2ff;
+      --green: #10b981;
+      --green-bg: #ecfdf5;
+      --red: #ef4444;
+      --red-bg: #fef2f2;
+      --orange: #f59e0b;
+      --orange-bg: #fffbeb;
+      --blue: #3b82f6;
+      --blue-bg: #eff6ff;
+      --purple: #8b5cf6;
+      --purple-bg: #f5f3ff;
+      --gray: #6b7280;
+      --gray-bg: #f3f4f6;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.06), 0 2px 4px -2px rgba(0,0,0,0.06);
+      --radius: 10px;
+    }
+
+    [data-theme="dark"], @media (prefers-color-scheme: dark) {
+      html:not([data-theme="light"]) {
+        --bg-primary: #0b0f1a;
+        --bg-secondary: #111827;
+        --bg-card: #1e293b;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --border: #1e293b;
+        --accent: #818cf8;
+        --accent-light: #1e1b4b;
+        --green-bg: #052e16;
+        --red-bg: #450a0a;
+        --orange-bg: #451a03;
+        --blue-bg: #172554;
+        --purple-bg: #2e1065;
+        --gray-bg: #1f2937;
+        --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+        --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.3);
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 24px 96px;
+    }
+
+    header {
+      margin-bottom: 48px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      margin-bottom: 8px;
+    }
+
+    header .subtitle {
+      color: var(--text-secondary);
+      font-size: 16px;
+    }
+
+    header .repo-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 14px;
+      margin-top: 12px;
+      padding: 4px 12px;
+      background: var(--accent-light);
+      border-radius: 20px;
+      transition: opacity 0.15s;
+    }
+
+    header .repo-link:hover { opacity: 0.8; }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .feed-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      transition: all 0.15s;
+    }
+
+    .feed-link:hover {
+      color: var(--text-secondary);
+      border-color: var(--text-muted);
+    }
+
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      transition: all 0.15s;
+    }
+
+    .theme-toggle:hover {
+      color: var(--text-secondary);
+      border-color: var(--text-muted);
+    }
+
+    .category-section {
+      margin-bottom: 40px;
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .category-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .cat-breaking .category-icon { background: var(--red-bg); color: var(--red); }
+    .cat-feature .category-icon { background: var(--green-bg); color: var(--green); }
+    .cat-improvement .category-icon { background: var(--blue-bg); color: var(--blue); }
+    .cat-fix .category-icon { background: var(--orange-bg); color: var(--orange); }
+    .cat-docs .category-icon { background: var(--purple-bg); color: var(--purple); }
+    .cat-chore .category-icon { background: var(--gray-bg); color: var(--gray); }
+
+    .category-title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .category-count {
+      background: var(--bg-secondary);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    .entry-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .entry {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      transition: box-shadow 0.15s, border-color 0.15s;
+    }
+
+    .entry:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--text-muted);
+    }
+
+    .entry-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .entry-body {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .entry-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .entry-meta a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .entry-meta a:hover { text-decoration: underline; }
+
+    .entry-author {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 64px 24px;
+      color: var(--text-muted);
+    }
+
+    .empty-state h2 {
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+    }
+
+    footer {
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    @media (max-width: 640px) {
+      .container { padding: 24px 16px 64px; }
+      header h1 { font-size: 24px; }
+      .entry { padding: 12px 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>{{ project.name }} Changelog</h1>
+      <p class="subtitle">Stay up to date with the latest changes and improvements.</p>
+      {% if project.repo %}
+      <a href="https://github.com/{{ project.repo }}" class="repo-link" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        {{ project.repo }}
+      </a>
+      {% endif %}
+      <div class="header-actions">
+        <a href="feed.xml" class="feed-link">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="6.18" cy="17.82" r="2.18"/><path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56zm0 5.66v2.83c3.9 0 7.07 3.17 7.07 7.07h2.83c0-5.47-4.43-9.9-9.9-9.9z"/></svg>
+          RSS Feed
+        </a>
+        <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+      </div>
+    </header>
+
+    {% set has_entries = false %}
+    {% for cat in category_order %}
+      {% if cat in grouped and grouped[cat] %}
+        {% set has_entries = true %}
+      {% endif %}
+    {% endfor %}
+
+    {% if not has_entries %}
+    <div class="empty-state">
+      <h2>No changelog entries yet</h2>
+      <p>Entries will appear here when PRs are merged and processed.</p>
+    </div>
+    {% else %}
+      {% for cat in category_order %}
+        {% if cat in grouped and grouped[cat] %}
+        <section class="category-section cat-{{ cat }}">
+          <div class="category-header">
+            <div class="category-icon">
+              {% if cat == 'breaking' %}&#x26A0;{% elif cat == 'feature' %}&#x2728;{% elif cat == 'improvement' %}&#x1F680;{% elif cat == 'fix' %}&#x1F41B;{% elif cat == 'docs' %}&#x1F4D6;{% else %}&#x1F527;{% endif %}
+            </div>
+            <h2 class="category-title">{{ category_labels.get(cat, cat|title) }}</h2>
+            <span class="category-count">{{ grouped[cat]|length }}</span>
+          </div>
+          <div class="entry-list">
+            {% for entry in grouped[cat] %}
+            <div class="entry">
+              <div class="entry-title">{{ entry.title }}</div>
+              {% if entry.body %}
+              <div class="entry-body">{{ entry.body }}</div>
+              {% endif %}
+              <div class="entry-meta">
+                {% if entry.pr_number %}
+                <a href="{{ entry.pr_url }}" target="_blank" rel="noopener">#{{ entry.pr_number }}</a>
+                {% endif %}
+                {% if entry.author %}
+                <span class="entry-author">by {{ entry.author }}</span>
+                {% endif %}
+                {% if entry.created_at %}
+                <span>{{ entry.created_at[:10] }}</span>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </section>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
+    <footer>
+      <p>Generated {{ generated_at }} by <a href="https://github.com" target="_blank">ChangelogHQ</a></p>
+    </footer>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : (current === 'light' ? 'dark' : 'dark');
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('changelog-theme', next);
+    }
+    (function() {
+      const saved = localStorage.getItem('changelog-theme');
+      if (saved) document.documentElement.setAttribute('data-theme', saved);
+    })();
+  </script>
+</body>
+</html>

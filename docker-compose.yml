@@ -1,0 +1,22 @@
+services:
+  changelog-hq:
+    build: .
+    container_name: mfg-changelog-hq
+    ports:
+      - "8440:8440"
+    volumes:
+      - changelog-data:/data/changelog-hq
+    environment:
+      - PORT=8440
+      - CHANGELOG_DB_PATH=/data/changelog-hq/changelog.db
+      - LLM_URL=${LLM_URL:-http://host.docker.internal:11435}
+      - LLM_MODEL=${LLM_MODEL:-qwen2.5}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    cpus: 1.0
+    mem_limit: 512m
+
+volumes:
+  changelog-data:
