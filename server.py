@@ -7,15 +7,18 @@ import os
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Header, Query, Request
+from fastapi import Depends, FastAPI, HTTPException, Header, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 from pydantic import BaseModel
 
+from auth_client import require_auth
 import models
 import github as gh
 import rewriter
 import renderer
+
+AUTH_SERVICE_URL = os.environ.get("AUTH_SERVICE_URL", "http://localhost:8499")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(levelname)s: %(message)s")
 logger = logging.getLogger("changelog-hq")
@@ -398,7 +401,7 @@ class GenerateRequest(BaseModel):
 # ── Project Endpoints ────────────────────────────────────────────────────────
 
 @app.post("/projects")
-async def create_project(req: CreateProjectRequest):
+async def create_project(req: CreateProjectRequest, auth: dict = Depends(require_auth)):
     """Create a new project to track."""
     project = models.create_project(
         name=req.name,
@@ -441,6 +444,7 @@ async def get_changelog(
     format: str = Query("json", description="Output format: json, html, markdown"),
     theme: str = Query("auto", description="Theme for HTML: auto, light, dark"),
     limit: int = Query(100, ge=1, le=500),
+    auth: dict = Depends(require_auth),
 ):
     """Get the rendered changelog for a project."""
     project = models.get_project(project_id)
@@ -466,7 +470,7 @@ async def get_changelog(
 
 
 @app.post("/projects/{project_id}/generate")
-async def generate_changelog(project_id: str, req: GenerateRequest):
+async def generate_changelog(project_id: str, req: GenerateRequest, auth: dict = Depends(require_auth)):
     """Manually trigger changelog generation from recent merged PRs."""
     project = models.get_project(project_id)
     if not project:
